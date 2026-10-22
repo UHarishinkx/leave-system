@@ -4,8 +4,8 @@ A leave request and approval system built with Camunda 8, Spring Boot, and React
 
 ## Stack
 - Camunda 8 (Docker) – workflow engine
-- Spring Boot / Java 21 – backend
-- React + Vite – frontend
+- Spring Boot backend
+- React with Vite – frontend
 - PostgreSQL – database
 
 ## How to run
