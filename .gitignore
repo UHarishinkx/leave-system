@@ -1,0 +1,18 @@
+node_modules/
+dist/
+target/
+data/
+.env
+.DS_Store
+
+# Camunda runtime data (not needed in repo)
+camunda/camunda-data/
+camunda/secrets/
+camunda/.connectors/
+camunda/.hub/
+camunda/.identity/
+camunda/.optimize/
+camunda/.orchestration/
+camunda/tests/
+camunda/tests-lightweight/
+camunda/driver-lib/

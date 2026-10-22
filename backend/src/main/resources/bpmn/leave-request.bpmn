@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.8.0">
+  <bpmn:process id="leave-request" name="Leave request" isExecutable="true">
+    <bpmn:startEvent id="start" name="Leave requested"><bpmn:outgoing>f1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:serviceTask id="validate" name="Validate leave request">
+      <bpmn:extensionElements><zeebe:taskDefinition type="validate-leave" /></bpmn:extensionElements>
+      <bpmn:incoming>f1</bpmn:incoming><bpmn:outgoing>f2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="gwValid" name="Request valid?" default="fInvalid"><bpmn:incoming>f2</bpmn:incoming><bpmn:outgoing>fValid</bpmn:outgoing><bpmn:outgoing>fInvalid</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="manager" name="Manager approval">
+      <bpmn:extensionElements><zeebe:userTask /><zeebe:formDefinition formId="leave-approval" /></bpmn:extensionElements>
+      <bpmn:incoming>fValid</bpmn:incoming><bpmn:outgoing>f3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="gwApproved" name="Approved?" default="fRejected"><bpmn:incoming>f3</bpmn:incoming><bpmn:outgoing>fApproved</bpmn:outgoing><bpmn:outgoing>fRejected</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="finApproved" name="Finalize as approved">
+      <bpmn:extensionElements><zeebe:taskDefinition type="finalize-leave" /><zeebe:ioMapping><zeebe:input source="=&#34;APPROVED&#34;" target="outcome" /></zeebe:ioMapping></bpmn:extensionElements>
+      <bpmn:incoming>fApproved</bpmn:incoming><bpmn:outgoing>f4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="merge" name="Merge"><bpmn:incoming>fInvalid</bpmn:incoming><bpmn:incoming>fRejected</bpmn:incoming><bpmn:outgoing>f5</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="finRejected" name="Finalize as rejected">
+      <bpmn:extensionElements><zeebe:taskDefinition type="finalize-leave" /><zeebe:ioMapping><zeebe:input source="=&#34;REJECTED&#34;" target="outcome" /></zeebe:ioMapping></bpmn:extensionElements>
+      <bpmn:incoming>f5</bpmn:incoming><bpmn:outgoing>f6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endApproved" name="Leave approved"><bpmn:incoming>f4</bpmn:incoming></bpmn:endEvent>
+    <bpmn:endEvent id="endRejected" name="Leave rejected"><bpmn:incoming>f6</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="f1" sourceRef="start" targetRef="validate" />
+    <bpmn:sequenceFlow id="f2" sourceRef="validate" targetRef="gwValid" />
+    <bpmn:sequenceFlow id="fValid" sourceRef="gwValid" targetRef="manager"><bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">=valid</bpmn:conditionExpression></bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="fInvalid" sourceRef="gwValid" targetRef="merge" />
+    <bpmn:sequenceFlow id="f3" sourceRef="manager" targetRef="gwApproved" />
+    <bpmn:sequenceFlow id="fApproved" sourceRef="gwApproved" targetRef="finApproved"><bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">=approved</bpmn:conditionExpression></bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="fRejected" sourceRef="gwApproved" targetRef="merge" />
+    <bpmn:sequenceFlow id="f4" sourceRef="finApproved" targetRef="endApproved" />
+    <bpmn:sequenceFlow id="f5" sourceRef="merge" targetRef="finRejected" />
+    <bpmn:sequenceFlow id="f6" sourceRef="finRejected" targetRef="endRejected" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="D1"><bpmndi:BPMNPlane id="P1" bpmnElement="leave-request">
+    <bpmndi:BPMNShape id="s_start" bpmnElement="start"><dc:Bounds x="152" y="182" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="130" y="225" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="s_validate" bpmnElement="validate"><dc:Bounds x="240" y="160" width="100" height="80" /></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="s_gwValid" bpmnElement="gwValid" isMarkerVisible="true"><dc:Bounds x="395" y="175" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="388" y="145" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="s_manager" bpmnElement="manager"><dc:Bounds x="500" y="160" width="100" height="80" /></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="s_gwApproved" bpmnElement="gwApproved" isMarkerVisible="true"><dc:Bounds x="655" y="175" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="656" y="145" width="50" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="s_finApproved" bpmnElement="finApproved"><dc:Bounds x="760" y="160" width="100" height="80" /></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="s_endApproved" bpmnElement="endApproved"><dc:Bounds x="912" y="182" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="890" y="225" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="s_merge" bpmnElement="merge" isMarkerVisible="true"><dc:Bounds x="655" y="305" width="50" height="50" /></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="s_finRejected" bpmnElement="finRejected"><dc:Bounds x="760" y="290" width="100" height="80" /></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="s_endRejected" bpmnElement="endRejected"><dc:Bounds x="912" y="312" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="890" y="355" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+    <bpmndi:BPMNEdge id="e1" bpmnElement="f1"><di:waypoint x="188" y="200" /><di:waypoint x="240" y="200" /></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="e2" bpmnElement="f2"><di:waypoint x="340" y="200" /><di:waypoint x="395" y="200" /></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="eValid" bpmnElement="fValid"><di:waypoint x="445" y="200" /><di:waypoint x="500" y="200" /></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="eInvalid" bpmnElement="fInvalid"><di:waypoint x="420" y="225" /><di:waypoint x="420" y="330" /><di:waypoint x="655" y="330" /></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="e3" bpmnElement="f3"><di:waypoint x="600" y="200" /><di:waypoint x="655" y="200" /></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="eApproved" bpmnElement="fApproved"><di:waypoint x="705" y="200" /><di:waypoint x="760" y="200" /></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="eRejected" bpmnElement="fRejected"><di:waypoint x="680" y="225" /><di:waypoint x="680" y="305" /></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="e4" bpmnElement="f4"><di:waypoint x="860" y="200" /><di:waypoint x="912" y="200" /></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="e5" bpmnElement="f5"><di:waypoint x="705" y="330" /><di:waypoint x="760" y="330" /></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="e6" bpmnElement="f6"><di:waypoint x="860" y="330" /><di:waypoint x="912" y="330" /></bpmndi:BPMNEdge>
+  </bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
+</bpmn:definitions>

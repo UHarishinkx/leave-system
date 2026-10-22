@@ -1,0 +1,18 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:h2:file:./data/leavedb}
+    username: ${DB_USER:sa}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: true
+camunda:
+  client:
+    mode: self-managed
+    grpc-address: ${CAMUNDA_GRPC:http://localhost:26500}
+    rest-address: ${CAMUNDA_REST:http://localhost:8080}
