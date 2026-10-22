@@ -1,8 +1,7 @@
 # Leave Management System
 
-A leave request and approval system built with Camunda 8, Spring Boot, and React.
+A leave request and approval system built with Camunda 8, Spring Boot, and React(by referring the shared docs.)
 
-## Stack
 - Camunda 8 (Docker) – workflow engine
 - Spring Boot backend
 - React with Vite – frontend
